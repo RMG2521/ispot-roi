@@ -1,0 +1,347 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .roi-wrap { font-family: var(--font-sans); padding: 1.5rem 0; }
+  .roi-header { margin-bottom: 2rem; }
+  .roi-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; }
+  .logo-badge { background: #00B4A0; color: #fff; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+  .roi-header h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .roi-header p { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
+  .inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .input-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .input-card label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 8px; }
+  .input-row { display: flex; align-items: center; gap: 8px; }
+  .input-row input[type=range] { flex: 1; }
+  .val-badge { font-size: 15px; font-weight: 500; color: var(--color-text-primary); min-width: 80px; text-align: right; }
+  .input-note { font-size: 11px; color: var(--color-text-tertiary); margin-top: 6px; }
+  .results-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .metric-card.highlight { background: #00B4A0; }
+  .metric-label { font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .metric-card.highlight .metric-label { color: rgba(255,255,255,0.75); }
+  .metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-card.highlight .metric-value { color: #fff; }
+  .metric-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+  .metric-card.highlight .metric-sub { color: rgba(255,255,255,0.65); }
+  .chart-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .chart-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .chart-legend { display: flex; gap: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; }
+  .tab { font-size: 13px; padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+  .tab.active { background: #00B4A0; color: #fff; border-color: #00B4A0; }
+  .scenarios-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .scenario-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; background: var(--color-background-primary); cursor: pointer; transition: border-color 0.15s; }
+  .scenario-card:hover { border-color: #00B4A0; }
+  .scenario-card.active-scenario { border: 2px solid #00B4A0; }
+  .scenario-pct { font-size: 26px; font-weight: 500; color: var(--color-text-primary); }
+  .scenario-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; }
+  .scenario-roi { font-size: 13px; font-weight: 500; color: #00B4A0; }
+  .scenario-saved { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .payback-bar-wrap { margin-top: 8px; }
+  .payback-bar-bg { background: var(--color-background-secondary); border-radius: 4px; height: 6px; overflow: hidden; }
+  .payback-bar-fill { height: 100%; border-radius: 4px; background: #00B4A0; transition: width 0.5s ease; }
+  .insight-box { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); border-left: 3px solid #00B4A0; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+  .insight-box p { font-size: 14px; color: var(--color-text-primary); line-height: 1.6; }
+  .insight-box strong { font-weight: 500; }
+  .cta-row { display: flex; gap: 10px; }
+  .cta-btn { flex: 1; padding: 11px; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+  .cta-primary { background: #00B4A0; color: #fff; }
+  .cta-secondary { background: transparent; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.25rem 0; }
+  .section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); margin-bottom: 0.75rem; }
+  .breakeven-row { display: flex; align-items: center; gap: 16px; }
+  .breakeven-days { font-size: 28px; font-weight: 500; color: var(--color-text-primary); }
+  .breakeven-note { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+</style>
+
+<div class="roi-wrap">
+  <h2 class="sr-only">iSpot ROI Calculator — interactive tool to quantify return on investment</h2>
+  <div class="roi-header">
+    <div class="roi-logo">
+      <span class="logo-badge">iSpot.tv</span>
+      <span style="font-size:13px; color: var(--color-text-secondary);">ROI Calculator</span>
+    </div>
+    <h1>Quantify Your iSpot Investment</h1>
+    <p>Adjust your media spend and expected optimization gain to see your projected return in real time.</p>
+  </div>
+
+  <div class="inputs-grid">
+    <div class="input-card">
+      <label>Annual TV/Streaming Media Spend</label>
+      <div class="input-row">
+        <input type="range" id="spendSlider" min="10" max="1000" step="10" value="200" oninput="update()">
+        <span class="val-badge" id="spendVal">$200M</span>
+      </div>
+      <div class="input-note">Range: $10M – $1B+ per year</div>
+    </div>
+    <div class="input-card">
+      <label>Incremental Optimization Gain</label>
+      <div class="input-row">
+        <input type="range" id="gainSlider" min="1" max="10" step="0.5" value="3" oninput="update()">
+        <span class="val-badge" id="gainVal">3.0%</span>
+      </div>
+      <div class="input-note">Conservative range: 1% – 10%</div>
+    </div>
+    <div class="input-card">
+      <label>iSpot Solution Investment</label>
+      <div class="input-row">
+        <input type="range" id="investSlider" min="100" max="2000" step="10" value="364" oninput="update()">
+        <span class="val-badge" id="investVal">$364K</span>
+      </div>
+      <div class="input-note">Adjust to your quoted contract value</div>
+    </div>
+    <div class="input-card">
+      <label>Optimization Applies To</label>
+      <div class="input-row">
+        <input type="range" id="coverageSlider" min="25" max="100" step="5" value="100" oninput="update()">
+        <span class="val-badge" id="coverageVal">100%</span>
+      </div>
+      <div class="input-note">% of media budget measured by iSpot</div>
+    </div>
+  </div>
+
+  <div class="results-row">
+    <div class="metric-card">
+      <div class="metric-label">Media Dollars Recovered</div>
+      <div class="metric-value" id="metSaved">$6.0M</div>
+      <div class="metric-sub">Annual optimization value</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Net Gain After Investment</div>
+      <div class="metric-value" id="metNet">$5.6M</div>
+      <div class="metric-sub">Year-one dollars in pocket</div>
+    </div>
+    <div class="metric-card highlight">
+      <div class="metric-label">ROI</div>
+      <div class="metric-value" id="metROI">1,648%</div>
+      <div class="metric-sub">Return on investment</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">iSpot Pays for Itself</div>
+      <div class="metric-value" id="metMultiple">16.5×</div>
+      <div class="metric-sub">Times investment returned</div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <span class="chart-title">Break-even analysis — days to full payback</span>
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#00B4A0"></span>Cumulative gain</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#e5e5e5"></span>Investment line</span>
+      </div>
+    </div>
+    <div style="position: relative; width: 100%; height: 220px;">
+      <canvas id="breakChart" role="img" aria-label="Line chart showing cumulative optimization gain versus iSpot investment over 12 months, illustrating payback timeline"></canvas>
+    </div>
+    <div style="margin-top: 1rem; display: flex; align-items: center; gap: 12px;">
+      <div>
+        <div class="section-label">Break-even point</div>
+        <div class="breakeven-row">
+          <span class="breakeven-days" id="beDays">22 days</span>
+          <span class="breakeven-note">At your current inputs, iSpot's cost is fully recovered in <span id="beDaysNote">22 days</span>. Every day after that is pure gain.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Scenario comparison — click to explore</div>
+  <div class="scenarios-grid" id="scenarioGrid"></div>
+
+  <div class="insight-box" id="insightBox">
+    <p></p>
+  </div>
+
+  <hr class="divider">
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.25rem;">
+    <div class="input-card" style="padding: 0.85rem 1.1rem;">
+      <div class="section-label" style="margin-bottom: 4px;">5-Year Cumulative Value</div>
+      <div style="font-size: 28px; font-weight: 500; color: var(--color-text-primary);" id="fiveYear">$28.2M</div>
+      <div style="font-size: 12px; color: var(--color-text-secondary); margin-top: 2px;">Compounding 5% spend growth assumed</div>
+    </div>
+    <div class="input-card" style="padding: 0.85rem 1.1rem;">
+      <div class="section-label" style="margin-bottom: 4px;">Cost per $1 of value unlocked</div>
+      <div style="font-size: 28px; font-weight: 500; color: var(--color-text-primary);" id="costPerDollar">$0.06</div>
+      <div style="font-size: 12px; color: var(--color-text-secondary); margin-top: 2px;">iSpot investment ÷ media dollars recovered</div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <button class="cta-btn cta-primary" onclick="sendPrompt('Based on the current ROI calculator inputs, write a compelling one-paragraph executive summary I can use in a proposal to justify our iSpot investment.')">Generate executive summary ↗</button>
+    <button class="cta-btn cta-secondary" onclick="sendPrompt('What are the biggest levers that would improve our iSpot ROI, and what industry benchmarks exist for TV/streaming media optimization gains?')">What moves the needle? ↗</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let breakChart;
+
+const fmt = (n, decimals=1) => {
+  if (n >= 1000) return '$' + (n/1000).toFixed(decimals) + 'B';
+  if (n >= 1) return '$' + n.toFixed(decimals) + 'M';
+  return '$' + (n * 1000).toFixed(0) + 'K';
+};
+
+const fmtROI = n => Math.round(n).toLocaleString() + '%';
+const fmtMult = n => n.toFixed(1) + '×';
+
+function calcROI(spend, gainPct, invest, coverage) {
+  const effectiveSpend = spend * (coverage / 100);
+  const saved = effectiveSpend * (gainPct / 100);
+  const investM = invest / 1000;
+  const net = saved - investM;
+  const roi = ((saved - investM) / investM) * 100;
+  const multiple = saved / investM;
+  const bedays = Math.ceil((investM / saved) * 365);
+  return { saved, investM, net, roi, multiple, bedays };
+}
+
+function fiveYearVal(spend, gainPct, coverage) {
+  let total = 0;
+  let s = spend;
+  for (let y = 0; y < 5; y++) {
+    total += s * (coverage / 100) * (gainPct / 100);
+    s *= 1.05;
+  }
+  return total;
+}
+
+function buildChart(saved, investM) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const gainData = months.map((_, i) => parseFloat(((saved / 12) * (i + 1)).toFixed(3)));
+  const investData = months.map(() => investM);
+
+  if (breakChart) breakChart.destroy();
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const textColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+
+  breakChart = new Chart(document.getElementById('breakChart'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'Cumulative gain ($M)',
+          data: gainData,
+          borderColor: '#00B4A0',
+          backgroundColor: 'rgba(0,180,160,0.08)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#00B4A0'
+        },
+        {
+          label: 'iSpot investment ($M)',
+          data: investData,
+          borderColor: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)',
+          borderDash: [5, 4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+          tension: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(2) + 'M'
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
+        y: {
+          grid: { color: gridColor },
+          ticks: {
+            color: textColor, font: { size: 11 },
+            callback: v => '$' + v.toFixed(1) + 'M'
+          }
+        }
+      }
+    }
+  });
+}
+
+const SCENARIOS = [
+  { pct: 1, label: 'Conservative' },
+  { pct: 3, label: 'Likely', star: true },
+  { pct: 5, label: 'Strong case' }
+];
+
+function buildScenarios(spend, invest, coverage) {
+  const grid = document.getElementById('scenarioGrid');
+  const active = parseFloat(document.getElementById('gainSlider').value);
+  grid.innerHTML = SCENARIOS.map(s => {
+    const r = calcROI(spend, s.pct, invest, coverage);
+    const barPct = Math.min(100, (r.bedays / 365) * 100);
+    const isActive = Math.abs(s.pct - active) < 0.1;
+    return `<div class="scenario-card ${isActive ? 'active-scenario' : ''}" onclick="setGain(${s.pct})">
+      <div class="scenario-label">${s.label}${s.star ? ' ★' : ''}</div>
+      <div class="scenario-pct">${s.pct}%</div>
+      <div style="font-size:11px; color:var(--color-text-tertiary); margin-bottom:8px;">optimization gain</div>
+      <div class="scenario-roi">ROI: ${fmtROI(r.roi)}</div>
+      <div class="scenario-saved">${fmt(r.saved)} recovered · ${r.bedays}d payback</div>
+      <div class="payback-bar-wrap">
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-tertiary); margin-bottom:3px;"><span>Break-even</span><span>${r.bedays}d</span></div>
+        <div class="payback-bar-bg"><div class="payback-bar-fill" style="width:${barPct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setGain(v) {
+  document.getElementById('gainSlider').value = v;
+  update();
+}
+
+function getInsight(spend, gainPct, invest, coverage, r) {
+  const mult = r.multiple.toFixed(1);
+  const costPer = (r.investM / r.saved * 1000000).toFixed(0);
+  const msgs = [
+    `At a <strong>${gainPct}% optimization gain</strong> on your <strong>${fmt(spend, 0)}</strong> media budget, iSpot recovers <strong>${fmt(r.saved)}</strong> in media value annually — that's <strong>${mult}× your investment</strong> back in year one alone. You spend $${costPer} with iSpot for every $1,000 of value unlocked.`,
+    `iSpot's cost is fully covered in just <strong>${r.bedays} days</strong>. After that, every dollar of optimization gain is pure return — with no additional spend required. Over 5 years (assuming modest 5% budget growth), the cumulative unlocked value reaches <strong>${fmt(fiveYearVal(spend, gainPct, coverage))}</strong>.`
+  ];
+  return msgs[Math.floor(Date.now() / 5000) % 2];
+}
+
+function update() {
+  const spend = parseFloat(document.getElementById('spendSlider').value);
+  const gain = parseFloat(document.getElementById('gainSlider').value);
+  const invest = parseFloat(document.getElementById('investSlider').value);
+  const coverage = parseFloat(document.getElementById('coverageSlider').value);
+
+  document.getElementById('spendVal').textContent = spend >= 1000 ? '$' + (spend/1000).toFixed(1) + 'B' : '$' + spend + 'M';
+  document.getElementById('gainVal').textContent = gain.toFixed(1) + '%';
+  document.getElementById('investVal').textContent = invest >= 1000 ? '$' + (invest/1000).toFixed(2) + 'M' : '$' + invest + 'K';
+  document.getElementById('coverageVal').textContent = coverage + '%';
+
+  const r = calcROI(spend, gain, invest, coverage);
+
+  document.getElementById('metSaved').textContent = fmt(r.saved);
+  document.getElementById('metNet').textContent = fmt(r.net);
+  document.getElementById('metROI').textContent = fmtROI(r.roi);
+  document.getElementById('metMultiple').textContent = fmtMult(r.multiple);
+  document.getElementById('beDays').textContent = r.bedays + ' days';
+  document.getElementById('beDaysNote').textContent = r.bedays + ' days';
+  document.getElementById('fiveYear').textContent = fmt(fiveYearVal(spend, gain, coverage));
+  const costPer = (r.investM / r.saved).toFixed(2);
+  document.getElementById('costPerDollar').textContent = '$' + costPer;
+
+  document.querySelector('#insightBox p').innerHTML = getInsight(spend, gain, invest, coverage, r);
+  buildChart(r.saved, r.investM);
+  buildScenarios(spend, invest, coverage);
+}
+
+update();
+</script>
